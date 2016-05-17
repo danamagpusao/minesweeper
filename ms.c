@@ -37,14 +37,24 @@
     int width, height;
     int tile_dimension;
 
-void erase(int x, int y, int w, int h){ //basically covers an area with a black rectangle 
+void erase(int x, int y, int w, int h){ // draws a black box
    int i,j;
    for (i=y;i<=(y+h);i++)
       for (j=x;j<=(x+w);j++)
          write_pixel(j,i,100);
 }
 
-void drawBox(int x, int y, int w, int h,int color){ //basically covers an area with a black rectangle 
+void drawBorder(int x, int y, int w, int h,int thickness ,int color){ // draws Border box
+   int i,j;
+   
+   for (i=y;i<=(y+h);i++)
+      for (j=x;j<=(x+w);j++)
+         if(i<=y+thickness || i > (y+h-thickness) && i<=y+h || j<=x+thickness || j>x+w-thickness && j<=x+w) write_pixel(j,i,color);
+
+
+}
+
+void drawBox(int x, int y, int w, int h,int color){ // draws Solid box
    int i,j;
    for (i=y;i<=(y+h);i++)
       for (j=x;j<=(x+w);j++)
@@ -77,11 +87,13 @@ void drawBoard(){
 }
 
 int getX(int j){
-     return 150 +(j*tile_dimension)+(j*5);    
+     int gap = 25/(SIZE-1);
+     return 150 +(j*tile_dimension)+(j*gap);    
 }
 
 int getY(int i){
-    return 20 +(i*tile_dimension)+(i*5); 
+    int gap = 25/(SIZE-1);
+    return 20 +(i*tile_dimension)+(i*gap); 
 }
 
 int checkNearbyMines(int i, int j){
@@ -210,10 +222,6 @@ void initializeBoard(int row, int col){
             }
         
         }
-        
-        
-     
-
 }
 
 
@@ -240,8 +248,8 @@ int main() {
 	do{
         SIZE=0;
 	    erase(1,1,400,220);
-
-      	write_text("MINESWEEPER",120,40,YELLOW,1); //title
+        drawBorder(60, 20, 200, 55, 3 ,RED);
+      	write_text("MINESWEEPER",110,40,YELLOW,1); //title
 
 	    //menu options
 	    write_text("1 - Start",93,100,WHITE,0); 
@@ -250,7 +258,6 @@ int main() {
 	    write_text("0 - Quit",93,160,WHITE,0);
 	
 	    keypress=(char)getch();
-	    erase(1,1,400,220); //erase menu
 
 	    if(keypress==START){
 	    do{
@@ -259,7 +266,7 @@ int main() {
                 do{
                     erase(1,1,400,220);
 
-                    write_text("SELECT LEVEL:",30,40,WHITE,1); //title
+                    write_text("SELECT LEVEL:",30,40,YELLOW,1); //title
 
                     //level options
                     write_text("1 - 6x6 Board",120,100,WHITE,0); 
@@ -288,6 +295,7 @@ int main() {
                 }
 
                 drawBoard();
+                write_text("Time: ",25,17,YELLOW,1);
                 write_text("w - up",25,90,WHITE,0);
                 write_text("s - down",25,100,WHITE,0);
                 write_text("a - left",25,110,WHITE,0);
@@ -365,14 +373,18 @@ int main() {
                         
                         
                         if(boardState[row][col] == 100 && boardActivated[row][col] == 1){  
-                            gameOver = 1;  
-                            drawBox(90,70,150,50,GRAY);
+                            gameOver = 1;                           
+                            drawBox(90,70,150,50,43);
+                            drawBorder(90,70,150,50,2,RED);
+                            write_text("Game Over!",123,91,GRAY,0);
                             write_text("Game Over!",124,90,BLACK,0);
+                            
                         }
                         
                         if (isGoal(boardState, boardActivated) == 1){ 
                             winGame = 1;  
-                            drawBox(90,70,150,50,YELLOW);
+                            drawBox(90,70,150,50,43);
+                            drawBorder(90,70,150,50,2,RED);
                             write_text("You Win!",126,90,BLACK,0);
                                 
                         }
@@ -383,8 +395,10 @@ int main() {
         }
         
         else if(keypress == INSTRUCTIONS){
+            erase(1,1,400,220);
             do{
                if(keypress == INSTRUCTIONS){
+                   
                    write_text("Instructions",105,20,YELLOW,1);
                    //write instructions here
                    write_text("- Open(k) all the tiles of the ",10,50,WHITE,0);
@@ -442,6 +456,7 @@ int main() {
         }
         
        else if(keypress == HIGHSCORE){
+           erase(1,1,400,220);
             do{
               if(keypress == HIGHSCORE){
                    write_text("High Scores!",120,40,WHITE,1);
